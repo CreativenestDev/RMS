@@ -6,6 +6,16 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Seeding Pakistani White-Label Platform Database...');
 
+  try {
+    const existing = await prisma.restaurant.count();
+    if (existing > 0) {
+      console.log(`✅ Database already seeded with ${existing} restaurant(s). Skipping re-seed.`);
+      return;
+    }
+  } catch (checkErr) {
+    console.log('Tables initializing or first-time setup...');
+  }
+
   // 1. Clean existing records
   await prisma.orderItemModifier.deleteMany();
   await prisma.orderItem.deleteMany();

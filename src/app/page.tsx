@@ -9,12 +9,10 @@ import { ProductCard } from '@/components/storefront/ProductCard';
 import { CartDrawer } from '@/components/storefront/CartDrawer';
 import { formatCurrency } from '@/lib/utils';
 
-export default async function StorefrontHomePage() {
-  const restaurant = await getDefaultRestaurant();
-
-  const categories = await db.category.findMany({
+async function getCategories(restaurantId: string) {
+  return await db.category.findMany({
     where: {
-      restaurantId: restaurant.id,
+      restaurantId,
       isActive: true,
     },
     orderBy: { sortOrder: 'asc' },
@@ -39,6 +37,21 @@ export default async function StorefrontHomePage() {
       },
     },
   });
+}
+
+type CategoryWithProducts = Awaited<ReturnType<typeof getCategories>>;
+
+export const dynamic = 'force-dynamic';
+
+export default async function StorefrontHomePage() {
+  const restaurant = await getDefaultRestaurant();
+
+  let categories: CategoryWithProducts = [];
+  try {
+    categories = await getCategories(restaurant.id);
+  } catch (err) {
+    console.warn('Could not query categories during page render:', err);
+  }
 
   const featuredProducts = categories
     .flatMap((c) => c.products)

@@ -8,6 +8,7 @@ import { Footer } from '@/components/storefront/Footer';
 import { ProductCard } from '@/components/storefront/ProductCard';
 import { CartDrawer } from '@/components/storefront/CartDrawer';
 import { formatCurrency } from '@/lib/utils';
+import { DEMO_CATEGORIES } from '@/lib/demo-data';
 
 async function getCategories(restaurantId: string) {
   return await db.category.findMany({
@@ -51,6 +52,10 @@ export default async function StorefrontHomePage() {
     categories = await getCategories(restaurant.id);
   } catch (err) {
     console.warn('Could not query categories during page render:', err);
+  }
+
+  if (!categories || categories.length === 0) {
+    categories = DEMO_CATEGORIES as any;
   }
 
   const featuredProducts = categories
